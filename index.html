@@ -6,16 +6,24 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Document</title>
     <link rel="stylesheet" href="style.css" />
-    <script src="script.js"></script>
   </head>
   <body>
     <section class="container">
-      <section class="items"></section>
-      <section class="cart">
-        <span class="cart__title">Carrinho de compras</span>
-        <button class="empty-cart">Esvaziar carrinho</button>
-        <ol class="cart__items"></ol>
-      </section>
-    </section>
+      <section class="items">
+        <!-- Aqui são construídos, dinamicamente via javascript, os elementos contidos
+          no array do JSON retornado pela consulta ao ENDPOINT do mercadolivre-->
+          <h1 class="loading">Loading...</h1>
+        </section>
+        <section class="cart">
+          <span class="cart__title">Carrinho de compras</span>
+          <button class="empty-cart">Esvaziar carrinho</button>
+          <ul class="cart__items">
+            <!-- Aqui são adicionados, dinamicamente via javascript, os elementos
+              clicados no botão "Adicionar ao carrinho" -->
+            </ul>
+            <span>Preço total: $<span class="total-price"></span></span>
+          </section>
+        </section>
+    <script src="script.js"></script>
   </body>
 </html>
