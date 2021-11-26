@@ -1,9 +1,5 @@
 let totalPrice; // variável que armazena o somatório dos preços do carrinho
 
-function foo(){
-  carregaDadosCarrinho(); // carrega os dados do carrinho, salvos no localStorage
-}
-
 function createProductImageElement(imageSource) {
   const img = document.createElement('img');
   img.className = 'item__image';
@@ -46,24 +42,23 @@ function updateCartValue() {
   for (let i = 0; i < dadosLocais.length; i += 1) {
     totalPrice += dadosLocais[i].salePrice;
   }
-  // atualiza o valor total na tela
-  document.getElementsByClassName('total-price')[0].innerHTML = totalPrice;
+  if (totalPrice === 0) { // se o último produto for retirado do carrinho
+    totalPrice = '0.00';
+  }
+  document.getElementsByClassName('total-price')[0].innerHTML = totalPrice; // atualiza o valor total na tela
 }
 
 function cartItemClickListener(event) {
   // obtém uma referência do item clicado no carrinho
   const item = event.target;
-
-  /* primeiro, remove o elemento do localStorage (Requisito 4) ----------------------*/
+  /* remove o elemento do localStorage (Requisito 4) ----------------------*/
   const dadosLocais = JSON.parse(localStorage.getItem('dadosCarrinho')); // obtém o array de produtos do carrinho salvos no localStorage
   const nodes = Array.from(item.parentElement.children); // obtém um array com todos os item no carrinho na página HTML
   const id = nodes.indexOf(item); // obtém o índice do item clicado na lista do carrinho
   dadosLocais.splice(id, 1); // remove o item do carrinho no localStorage
   localStorage.setItem('dadosCarrinho', JSON.stringify(dadosLocais)); // atualiza o localStorage
-
   // remove o item do carrinho na página HTML
   item.remove();
-
   updateCartValue(); // Atualiza o valor total dos itens do carrinho (Requisito 5)
 }
 
@@ -108,7 +103,6 @@ function createProductItemElement(sku, name, image) {
   // adicionei um evendo ao botão da listagem (não veio no exercício! precisei colocar!)
   botao.addEventListener('click', itemClickListener);
   section.appendChild(botao);
-
   return section;
 }
 
@@ -123,7 +117,7 @@ function buildListagem(dados) {
   }
 }
 
-/* função criada para carregar os itens de carrinho possivelmente armazenados no localStorage (Requisito 4) */
+/* função criada para carregar os itens de carrinho possivelmente armazenados no localStorage (Requisito 4) -------- */
 function carregaDadosCarrinho() {
   if (localStorage.length === 0) return; // caso o localStorage esteja vazio, não há necessidade de carregar dados 
   const dadosLocais = JSON.parse(localStorage.getItem('dadosCarrinho')); // lê os produtos do Carrinho salvos no localStorage
@@ -162,8 +156,7 @@ window.onload = () => {
     itemLoading.remove();
   };
   xhr.send(); // submete a consulta ao ENDPOINT do mercadolivre
-  setTimeout(() => foo(), 3000);
-  
+  carregaDadosCarrinho(); // carrega os dados do carrinho, salvos no localStorage
   const botaoEsvaziar = document.getElementsByClassName('empty-cart')[0]; // define o evento do botão de "esvaziar carrinho (Requisito 6)"
   botaoEsvaziar.addEventListener('click', cleanCartListener);
   updateCartValue(); // Atualiza o valor total dos itens do carrinho (Requisito 5)
