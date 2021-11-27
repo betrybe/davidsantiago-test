@@ -64,14 +64,39 @@ function cartItemClickListener(event) {
 
 function createCartItemElement(sku, name, salePrice) {
   const li = document.createElement('li');
-  li.className = 'cart__item';
+  li.className = 'cart__item tooltip';
+  li.setAttribute('data-title', 'Clique para remover do carrinho');
   li.innerText = `SKU: ${sku} | NAME: ${name} | PRICE: $${salePrice}`;
   li.addEventListener('click', cartItemClickListener);
   return li;
 }
 
+function showOverlay() {
+  document.getElementById('overlay').style.display = 'block';
+  document.getElementById('loadingCart').style.display = 'block';
+}
+
+function hideOverlay() {
+  document.getElementById('overlay').style.display = 'none';
+  document.getElementById('loadingCart').style.display = 'none';
+}
+
+function addItemCarrinho(k, n, s) {
+  const elem = document.getElementsByClassName('cart__items')[0];
+  elem.appendChild(createCartItemElement(k, n, s)); // add o elemento li no cart
+}
+
+function addItemLocalStorage(k, n, s) {
+  if (localStorage.length === 0) localStorage.setItem('dadosCarrinho', '[]'); // caso o localStorage esteja vazio, precisamos criar o registro de dados
+  const dadosLocais = JSON.parse(localStorage.getItem('dadosCarrinho')); // obtém o array de produtos do carrinho salvos no localStorage
+  dadosLocais.push({ sku: k, name: n, salePrice: s }); // adiciona o novo produto ao array do carrinho
+  localStorage.setItem('dadosCarrinho', JSON.stringify(dadosLocais)); // atualiza o localStorage
+  updateCartValue(); // Atualiza o valor total dos itens do carrinho (Requisito 5)
+}
+
 /* função criada para escutar os eventos de clique dos botões dos produtos da listagem (Requisito 2) -------- */
 function itemClickListener(event) {
+  showOverlay();
   const id = getSkuFromProductItem(event.target.parentNode); // captura o id do item selecionado
   const xhr = connectEndpoint(`https://api.mercadolibre.com/items/${id}`); // obtém um request ao ENDPOINT
   xhr.onload = function () { // define o callback a ser invocado quando os dados da consulta ao ENDPOINT forem retornados
@@ -80,16 +105,34 @@ function itemClickListener(event) {
       const k = xhr.response.id;
       const n = xhr.response.title;
       const s = xhr.response.price;
-      document.getElementsByClassName('cart__items')[0].appendChild(createCartItemElement(k, n, s)); // add o elemento li no cart
+      addItemCarrinho(k, n, s); // adiciona o elemento ao carrinho
       // adiciona o elemento também ao localStorage (Requisito 4)
-      if (localStorage.length === 0) localStorage.setItem('dadosCarrinho', '[]'); // caso o localStorage esteja vazio, precisamos criar o registro de dados
-      const dadosLocais = JSON.parse(localStorage.getItem('dadosCarrinho')); // obtém o array de produtos do carrinho salvos no localStorage
-      dadosLocais.push({ sku: k, name: n, salePrice: s }); // adiciona o novo produto ao array do carrinho
-      localStorage.setItem('dadosCarrinho', JSON.stringify(dadosLocais)); // atualiza o localStorage
-      updateCartValue(); // Atualiza o valor total dos itens do carrinho (Requisito 5)
+      addItemLocalStorage(k, n, s);
+      hideOverlay();
     }
   };
   xhr.send(); // submete a consulta ao ENDPOINT do mercadolivre
+}
+
+var asyncCall = function () {
+  return new Promise((resolve, reject) => {
+    showOverlay();
+    const id = getSkuFromProductItem(event.target.parentNode); // captura o id do item selecionado
+    const xhr = connectEndpoint(`https://api.mercadolibre.com/items/${id}`); // obtém um request ao ENDPOINT
+    xhr.onload = function () { // define o callback a ser invocado quando os dados da consulta ao ENDPOINT forem retornados
+      if (xhr.status !== 200) alert(`Nada encontrado. Erro ${xhr.status}`); // verifica se os dados não foram retornados com sucesso!
+      else { // caso os dados tenham sido retornados com sucesso
+        const k = xhr.response.id;
+        const n = xhr.response.title;
+        const s = xhr.response.price;
+        addItemCarrinho(k, n, s); // adiciona o elemento ao carrinho
+        // adiciona o elemento também ao localStorage (Requisito 4)
+        addItemLocalStorage(k, n, s);
+        hideOverlay();
+      }
+    };
+    xhr.send(); // submete a consulta ao ENDPOINT do mercadolivre
+  })
 }
 
 function createProductItemElement(sku, name, image) {
@@ -101,7 +144,7 @@ function createProductItemElement(sku, name, image) {
   section.appendChild(createProductImageElement(image));
   const botao = createCustomElement('button', 'item__add', 'Adicionar ao carrinho!');
   // adicionei um evendo ao botão da listagem (não veio no exercício! precisei colocar!)
-  botao.addEventListener('click', itemClickListener);
+  botao.addEventListener('click', asyncCall);
   section.appendChild(botao);
   return section;
 }
@@ -152,8 +195,8 @@ window.onload = () => {
     } else { // caso os dados não tenham sido retornados com sucesso
       alert(`Nada encontrado. Erro ${xhr.status}`);
     }
-    const itemLoading = document.getElementsByClassName('loading')[0];
-    itemLoading.remove();
+    document.getElementsByClassName('loading')[0].remove();
+    document.getElementById('overlay').style.display = 'none';
   };
   xhr.send(); // submete a consulta ao ENDPOINT do mercadolivre
   carregaDadosCarrinho(); // carrega os dados do carrinho, salvos no localStorage

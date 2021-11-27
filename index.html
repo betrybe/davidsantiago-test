@@ -1,29 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>Document</title>
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
-    <section class="container">
-      <section class="items">
-        <!-- Aqui são construídos, dinamicamente via javascript, os elementos contidos
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <title>Document</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <section class="container">
+    <section class="items">
+      <!-- Aqui são construídos, dinamicamente via javascript, os elementos contidos
           no array do JSON retornado pela consulta ao ENDPOINT do mercadolivre-->
-          <h1 class="loading">Loading...</h1>
-        </section>
-        <section class="cart">
-          <span class="cart__title">Carrinho de compras</span>
-          <button class="empty-cart">Esvaziar carrinho</button>
-          <ul class="cart__items">
-            <!-- Aqui são adicionados, dinamicamente via javascript, os elementos
-              clicados no botão "Adicionar ao carrinho" -->
-            </ul>
-            <span>Preço total: $<span class="total-price"></span></span>
-          </section>
-        </section>
-    <script src="script.js"></script>
-  </body>
+      <h1 class="loading">Loading...</h1>
+      <h1 id="loadingCart">Adicionando ao carrinho...</h1>
+      <div id="overlay"></div>
+    </section>
+    <section class="cart">
+      <span class="cart__title">Carrinho de compras</i></span>
+      <button class="empty-cart">Esvaziar carrinho</button>
+      <ul class="cart__items" >
+        <!-- Aqui são adicionados, dinamicamente via javascript, os elementos
+                  clicados no botão "Adicionar ao carrinho" -->
+      </ul>
+      <span class="total">Preço total: $<span class="total-price"></span></span>
+    </section>
+  </section>
+  <script src="script.js"></script>
+</body>
+
 </html>
