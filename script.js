@@ -114,27 +114,6 @@ function itemClickListener(event) {
   xhr.send(); // submete a consulta ao ENDPOINT do mercadolivre
 }
 
-var asyncCall = function () {
-  return new Promise((resolve, reject) => {
-    showOverlay();
-    const id = getSkuFromProductItem(event.target.parentNode); // captura o id do item selecionado
-    const xhr = connectEndpoint(`https://api.mercadolibre.com/items/${id}`); // obtém um request ao ENDPOINT
-    xhr.onload = function () { // define o callback a ser invocado quando os dados da consulta ao ENDPOINT forem retornados
-      if (xhr.status !== 200) alert(`Nada encontrado. Erro ${xhr.status}`); // verifica se os dados não foram retornados com sucesso!
-      else { // caso os dados tenham sido retornados com sucesso
-        const k = xhr.response.id;
-        const n = xhr.response.title;
-        const s = xhr.response.price;
-        addItemCarrinho(k, n, s); // adiciona o elemento ao carrinho
-        // adiciona o elemento também ao localStorage (Requisito 4)
-        addItemLocalStorage(k, n, s);
-        hideOverlay();
-      }
-    };
-    xhr.send(); // submete a consulta ao ENDPOINT do mercadolivre
-  })
-}
-
 function createProductItemElement(sku, name, image) {
   const section = document.createElement('section');
   section.className = 'item';
@@ -144,7 +123,7 @@ function createProductItemElement(sku, name, image) {
   section.appendChild(createProductImageElement(image));
   const botao = createCustomElement('button', 'item__add', 'Adicionar ao carrinho!');
   // adicionei um evendo ao botão da listagem (não veio no exercício! precisei colocar!)
-  botao.addEventListener('click', asyncCall);
+  botao.addEventListener('click', itemClickListener);
   section.appendChild(botao);
   return section;
 }
@@ -186,6 +165,7 @@ function cleanCartListener() {
 }
 
 window.onload = () => {
+  hideOverlay();
   const url = 'https://api.mercadolibre.com/sites/MLB/search?q=computador';// endereço do ENDPOINT com a chave da pesquisa (Requisito 1)
   const xhr = connectEndpoint(url);// obtém um request ao ENDPOINT
   xhr.onload = function () { // define o callback a ser invocado quando os dados da consulta ao ENDPOINT forem retornados

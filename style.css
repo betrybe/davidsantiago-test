@@ -182,7 +182,7 @@
   padding-top: 10px;
 }
 
-.loading, #loadingCart {
+.loading , #loadingCart {
   color: white;
   font-size: 16pt;
   position: fixed;
