@@ -27,26 +27,35 @@ function connectEndpoint(url) {
   return xhr; // retorna o request
 }
 
+const emptyCartClass = 'empty-cart';
+function btnDisable() {
+  const elem = document.getElementsByClassName(emptyCartClass)[0];
+  elem.style.backgroundColor = 'grey';
+}
+
+function btnEnable() {
+  const elem = document.getElementsByClassName(emptyCartClass)[0];
+  elem.style.backgroundColor = 'coral';
+}
+
 /* função criada para atualizar o valor total do carrinho (Requisito 5) */
 function updateCartValue() {
   totalPrice = 0;
-  const nameClass = 'empty-cart';
-  const elem = document.getElementsByClassName(nameClass)[0];
   if (localStorage.length === 0) { // caso o localStorage esteja vazio, não há necessidade de somar valores
-    elem.innerHTML = '0.00'; // atualiza o valor total na tela para zero
-    elem.classList.add('btnDisabled');
+    document.getElementsByClassName('total-price')[0].innerHTML = '0.00'; // atualiza o valor total na tela para zero
+    btnDisable();
     return;
   }
-  document.getElementsByClassName(nameClass)[0].classList.remove('btnDisabled');
+  btnEnable();
   const dadosLocais = JSON.parse(localStorage.getItem('dadosCarrinho')); // lê os produtos do Carrinho salvos no localStorage
   for (let i = 0; i < dadosLocais.length; i += 1) { // percorre todos os dados do carrinho e faz o somatório dos preços totais
     totalPrice += dadosLocais[i].salePrice;
   }
   if (totalPrice === 0) { // se o último produto for retirado do carrinho
     totalPrice = '0.00';
-    elem.classList.add('btnDisabled');
+    btnDisable();
   }
-  elem.innerHTML = totalPrice; // atualiza o valor total na tela
+  document.getElementsByClassName('total-price')[0].innerHTML = totalPrice; // atualiza o valor total na tela
 }
 
 function cartItemClickListener(event) {
@@ -181,7 +190,7 @@ window.onload = () => {
   };
   xhr.send(); // submete a consulta ao ENDPOINT do mercadolivre
   carregaDadosCarrinho(); // carrega os dados do carrinho, salvos no localStorage
-  const botaoEsvaziar = document.getElementsByClassName('empty-cart')[0]; // define o evento do botão de "esvaziar carrinho (Requisito 6)"
+  const botaoEsvaziar = document.getElementsByClassName(emptyCartClass)[0]; // define o evento do botão de "esvaziar carrinho (Requisito 6)"
   botaoEsvaziar.addEventListener('click', cleanCartListener);
   updateCartValue(); // Atualiza o valor total dos itens do carrinho (Requisito 5)
 };

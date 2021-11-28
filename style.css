@@ -103,18 +103,6 @@
   padding: 10px 50px;
 }
 
-.cart .empty-cart:hover {
-  background-color: rgb(245, 105, 55);
-}
-
-.btnDisabled {
-  background-color: gray;
-}
-
-.btnDisabled:hover {
-  background-color: gray;
-}
-
 .cart .cart__item {
   background-color: white;
   margin: 10px;
