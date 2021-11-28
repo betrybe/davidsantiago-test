@@ -30,22 +30,23 @@ function connectEndpoint(url) {
 /* função criada para atualizar o valor total do carrinho (Requisito 5) */
 function updateCartValue() {
   totalPrice = 0;
-  // caso o localStorage esteja vazio, não há necessidade de somar valores
-  if (localStorage.length === 0) {
-    // atualiza o valor total na tela paa zero
-    document.getElementsByClassName('total-price')[0].innerHTML = '0.00';
+  const nameClass = 'empty-cart';
+  const elem = document.getElementsByClassName(nameClass)[0];
+  if (localStorage.length === 0) { // caso o localStorage esteja vazio, não há necessidade de somar valores
+    elem.innerHTML = '0.00'; // atualiza o valor total na tela para zero
+    elem.classList.add('btnDisabled');
     return;
   }
-  // lê os produtos do Carrinho salvos no localStoragecl
-  const dadosLocais = JSON.parse(localStorage.getItem('dadosCarrinho'));
-  // percorre todos os dados do carrinho e faz o somatório dos preços totais
-  for (let i = 0; i < dadosLocais.length; i += 1) {
+  document.getElementsByClassName(nameClass)[0].classList.remove('btnDisabled');
+  const dadosLocais = JSON.parse(localStorage.getItem('dadosCarrinho')); // lê os produtos do Carrinho salvos no localStorage
+  for (let i = 0; i < dadosLocais.length; i += 1) { // percorre todos os dados do carrinho e faz o somatório dos preços totais
     totalPrice += dadosLocais[i].salePrice;
   }
   if (totalPrice === 0) { // se o último produto for retirado do carrinho
     totalPrice = '0.00';
+    elem.classList.add('btnDisabled');
   }
-  document.getElementsByClassName('total-price')[0].innerHTML = totalPrice; // atualiza o valor total na tela
+  elem.innerHTML = totalPrice; // atualiza o valor total na tela
 }
 
 function cartItemClickListener(event) {
@@ -165,7 +166,7 @@ function cleanCartListener() {
 }
 
 window.onload = () => {
-  hideOverlay();
+  document.getElementById('loadingCart').style.display = 'none';
   const url = 'https://api.mercadolibre.com/sites/MLB/search?q=computador';// endereço do ENDPOINT com a chave da pesquisa (Requisito 1)
   const xhr = connectEndpoint(url);// obtém um request ao ENDPOINT
   xhr.onload = function () { // define o callback a ser invocado quando os dados da consulta ao ENDPOINT forem retornados

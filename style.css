@@ -104,9 +104,15 @@
 }
 
 .cart .empty-cart:hover {
-  background-color: rgb(255, 110, 57);
-  color: white;
-  font-weight: 900;
+  background-color: rgb(245, 105, 55);
+}
+
+.btnDisabled {
+  background-color: gray;
+}
+
+.btnDisabled:hover {
+  background-color: gray;
 }
 
 .cart .cart__item {
