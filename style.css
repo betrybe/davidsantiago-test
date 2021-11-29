@@ -76,8 +76,9 @@
   flex-flow: column wrap;
 }
 
+/* Remove os bullets da lista */
 .cart ul {
-  list-style-type: none; /* Remove os bullets da lista */
+  list-style-type: none;
 }
 
 .cart .cart__title {
