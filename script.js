@@ -18,15 +18,6 @@ function getSkuFromProductItem(item) {
   return item.querySelector('span.item__sku').innerText;
 }
 
-/* função criada para retornar um request HTTP de um ENDPOINT */
-function connectEndpoint(url) {
-  // cria um request HTTP, para obter os dados JSON do ENDPOINT passado como parâmetro
-  const xhr = new XMLHttpRequest();
-  xhr.open('GET', url, true);
-  xhr.responseType = 'json';
-  return xhr; // retorna o request
-}
-
 const emptyCartClass = 'empty-cart';
 function btnDisable() {
   const elem = document.getElementsByClassName(emptyCartClass)[0];
@@ -91,11 +82,6 @@ function hideOverlay() {
   document.getElementById('loadingCart').style.display = 'none';
 }
 
-function addItemCarrinho(k, n, s) {
-  const elem = document.getElementsByClassName('cart__items')[0];
-  elem.appendChild(createCartItemElement(k, n, s)); // add o elemento li no cart
-}
-
 function addItemLocalStorage(k, n, s) {
   if (localStorage.length === 0) localStorage.setItem('dadosCarrinho', '[]'); // caso o localStorage esteja vazio, precisamos criar o registro de dados
   const dadosLocais = JSON.parse(localStorage.getItem('dadosCarrinho')); // obtém o array de produtos do carrinho salvos no localStorage
@@ -104,24 +90,39 @@ function addItemLocalStorage(k, n, s) {
   updateCartValue(); // Atualiza o valor total dos itens do carrinho (Requisito 5)
 }
 
-/* função criada para escutar os eventos de clique dos botões dos produtos da listagem (Requisito 2) -------- */
+function addItemCarrinho(item) {
+  const k = item.id;
+  const n = item.title;
+  const s = item.price;
+  const elem = document.getElementsByClassName('cart__items')[0];
+  elem.appendChild(createCartItemElement(k, n, s)); // add o elemento li no cart
+  // adiciona o elemento também ao localStorage (Requisito 4)
+  addItemLocalStorage(k, n, s);
+  hideOverlay();
+}
+
+/* função criada para retornar os dados de cada produto do ENDPOINT do mercadolivre (Requisito 2) */
+function loadingItem(id) {
+  const promisse = fetch(`https://api.mercadolibre.com/items/${id}`); // obtém um request ao ENDPOINT
+  promisse.then((response) => // função anônima para receptar o sucesso do request
+    response.json()) // extração do JSON da resposta, o qual retorna outra promisse
+  .then((jsonData) => { // função anônima para receptar a resposta assíncrona do JSON com os dados do produto clicado
+    // passa o array de dados JSON do produto para serem adicionados ao carrinho
+    addItemCarrinho(jsonData); // adiciona o elemento ao carrinho 
+  })
+  .catch((response) => { // função anônima para receptar o erro do request
+    alert(`Produto não encontrado. Erro ${response}`);
+  })
+  .finally(() => {
+    hideOverlay(); // limpa a menssagem de 'loading'
+  });
+}
+
+/* função criada para escutar os eventos de clique dos botões dos produtos da listagem (Requisito 2) */
 function itemClickListener(event) {
   showOverlay();
   const id = getSkuFromProductItem(event.target.parentNode); // captura o id do item selecionado
-  const xhr = connectEndpoint(`https://api.mercadolibre.com/items/${id}`); // obtém um request ao ENDPOINT
-  xhr.onload = function () { // define o callback a ser invocado quando os dados da consulta ao ENDPOINT forem retornados
-    if (xhr.status !== 200) alert(`Nada encontrado. Erro ${xhr.status}`); // verifica se os dados não foram retornados com sucesso!
-    else { // caso os dados tenham sido retornados com sucesso
-      const k = xhr.response.id;
-      const n = xhr.response.title;
-      const s = xhr.response.price;
-      addItemCarrinho(k, n, s); // adiciona o elemento ao carrinho
-      // adiciona o elemento também ao localStorage (Requisito 4)
-      addItemLocalStorage(k, n, s);
-      hideOverlay();
-    }
-  };
-  xhr.send(); // submete a consulta ao ENDPOINT do mercadolivre
+  loadingItem(id);
 }
 
 function createProductItemElement(sku, name, image) {
@@ -147,6 +148,23 @@ function buildListagem(dados) {
     // adiciona dinamicamente os itens no DOM,especificamente dentro da section 'items'
     document.getElementsByClassName('items')[0].appendChild(section);
   }
+}
+
+/* função criada para retornar a lista de produtos do ENDPOINT do mercadolivre (Requisito 1) */
+function loadingAllItems() {
+  // cria um request usando a API fetch, para obter os dados JSON do ENDPOINT passado como parâmetro
+  const promisse = fetch('https://api.mercadolibre.com/sites/MLB/search?q=computador');
+  promisse.then((response) => // função anônima para receptar o sucesso do request
+    response.json()) // extração do JSON da resposta, o qual retorna outra promisse
+  .then((jsonData) => // função anônima para receptar a resposta assíncrona do JSON com os dados dos produtos
+    // invoca a função de contrução da listagem, passando o array de dados do JSON
+    buildListagem(jsonData.results))
+  .catch((response) => // função anônima para receptar o erro do request
+    alert(`Nada encontrado. Erro ${response}`))
+  .finally(() => { // função anônima para limpar a mensagem de 'loading', após a requisição ser resolvida
+    document.getElementsByClassName('loading')[0].remove();
+    document.getElementById('overlay').style.display = 'none';
+  });
 }
 
 /* função criada para carregar os itens de carrinho possivelmente armazenados no localStorage (Requisito 4) -------- */
@@ -176,19 +194,7 @@ function cleanCartListener() {
 
 window.onload = () => {
   document.getElementById('loadingCart').style.display = 'none';
-  const url = 'https://api.mercadolibre.com/sites/MLB/search?q=computador';// endereço do ENDPOINT com a chave da pesquisa (Requisito 1)
-  const xhr = connectEndpoint(url);// obtém um request ao ENDPOINT
-  xhr.onload = function () { // define o callback a ser invocado quando os dados da consulta ao ENDPOINT forem retornados
-    if (xhr.status === 200) { // verifica se os dados foram retornados com sucesso!
-      // invoca a função de contrução da listagem, passando o array de dados do JSON
-      buildListagem(xhr.response.results);
-    } else { // caso os dados não tenham sido retornados com sucesso
-      alert(`Nada encontrado. Erro ${xhr.status}`);
-    }
-    document.getElementsByClassName('loading')[0].remove();
-    document.getElementById('overlay').style.display = 'none';
-  };
-  xhr.send(); // submete a consulta ao ENDPOINT do mercadolivre
+  loadingAllItems(); // faz um request ao ENDPOINT para carregar os produtos (Requisito 1)
   carregaDadosCarrinho(); // carrega os dados do carrinho, salvos no localStorage
   const botaoEsvaziar = document.getElementsByClassName(emptyCartClass)[0]; // define o evento do botão de "esvaziar carrinho (Requisito 6)"
   botaoEsvaziar.addEventListener('click', cleanCartListener);
